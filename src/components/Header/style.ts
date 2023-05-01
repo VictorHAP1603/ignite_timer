@@ -1,3 +1,38 @@
 import styled from 'styled-components'
 
-export const Container = styled.header``
+export const HeaderContainer = styled.header`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  nav {
+    display: flex;
+    gap: 0.5rem;
+
+    a {
+      width: 3rem;
+      height: 3rem;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: ${(p) => p.theme['gray-100']};
+
+      border-top: 3px solid transparent;
+      border-bottom: 3px solid transparent;
+
+      transition: all .4s;
+
+      &:hover {
+        border-bottom: 3px solid ${(p) => p.theme['green-500']};
+
+      }
+
+      &.active {
+        color: ${(p) => p.theme['green-500']};
+      }
+    }
+  }
+
+`
