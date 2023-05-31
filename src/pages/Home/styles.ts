@@ -22,7 +22,7 @@ export const FormContainer = styled.div`
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  color: ${p => p.theme['gray-100']};
+  color: ${(p) => p.theme['gray-100']};
   font-size: 1.125rem;
   font-weight: bold;
   flex-wrap: wrap;
@@ -32,26 +32,31 @@ const BaseInput = styled.input`
   background: transparent;
   height: 2.5rem;
   border: none;
-  border-bottom: 2px solid ${p => p.theme['gray-500']};
+  border-bottom: 2px solid ${(p) => p.theme['gray-500']};
   font-weight: bold;
   font-size: 1.125rem;
   font-size: inherit;
   padding: 0 0.5rem;
-  color: ${p => p.theme['gray-100']};
+  color: ${(p) => p.theme['gray-100']};
   transition: border-color 0.4s;
 
   &:focus {
     box-shadow: none;
-    border-color: ${p => p.theme['green-500']};
+    border-color: ${(p) => p.theme['green-500']};
   }
 
   &::placeholder {
-    color:  ${p => p.theme['gray-500']};
+    color: ${(p) => p.theme['gray-500']};
   }
 `
 
 export const TaskInput = styled(BaseInput)`
   flex: 1;
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
 
   &::-webkit-calendar-picker-indicator {
     display: none !important;
@@ -60,19 +65,24 @@ export const TaskInput = styled(BaseInput)`
 
 export const MinutesAmountInput = styled(BaseInput)`
   width: 4rem;
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
 `
 
 export const CountdownContainer = styled.div`
   font-family: 'Roboto Mono', monospace;
   font-size: 10rem;
   line-height: 8rem;
-  color: ${p => p.theme['gray-100']};
+  color: ${(p) => p.theme['gray-100']};
 
   display: flex;
   gap: 1rem;
 
   span {
-    background-color: ${p => p.theme['gray-700']};
+    background-color: ${(p) => p.theme['gray-700']};
     padding: 2rem 1rem;
     border-radius: 8px;
   }
@@ -80,7 +90,7 @@ export const CountdownContainer = styled.div`
 
 export const Separator = styled.div`
   padding: 2rem 0;
-  color: ${p => p.theme['green-500']};
+  color: ${(p) => p.theme['green-500']};
   width: 4rem;
   overflow: hidden;
 
@@ -88,7 +98,7 @@ export const Separator = styled.div`
   justify-content: center;
 `
 
-export const StartCountDownButton = styled.button`
+const BaseCountDownButton = styled.button`
   width: 100%;
   border: none;
   padding: 1rem;
@@ -103,8 +113,8 @@ export const StartCountDownButton = styled.button`
 
   cursor: pointer;
 
-  background-color: ${p => p.theme['green-500']};
-  color: ${p => p.theme['gray-100']};
+  background-color: ${(p) => p.theme['green-500']};
+  color: ${(p) => p.theme['gray-100']};
 
   transition: background-color 0.2s;
 
@@ -114,7 +124,22 @@ export const StartCountDownButton = styled.button`
   }
 
   &:not(:disabled):hover {
-    background-color: ${p => p.theme['green-700']};
+    background-color: ${(p) => p.theme['green-700']};
   }
+`
 
+export const StartCountDownButton = styled(BaseCountDownButton)`
+  background-color: ${(p) => p.theme['green-500']};
+
+  &:not(:disabled):hover {
+    background-color: ${(p) => p.theme['green-700']};
+  }
+`
+
+export const StopCountDownButton = styled(BaseCountDownButton)`
+  background-color: ${(p) => p.theme['red-500']};
+
+  &:not(:disabled):hover {
+    background-color: ${(p) => p.theme['red-700']};
+  }
 `
