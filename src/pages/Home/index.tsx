@@ -1,5 +1,4 @@
 import * as zod from 'zod'
-import { useState } from 'react'
 import { HandPalm, Play } from 'phosphor-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -16,7 +15,6 @@ import {
   StopCountDownButton,
 } from './styles'
 
-
 const newCycleSchema = zod.object({
   task: zod.string().nonempty('Informe a tarefa'),
   minutesAmount: zod
@@ -28,11 +26,7 @@ const newCycleSchema = zod.object({
 type NewCycleFormData = zod.infer<typeof newCycleSchema>
 
 export const Home = () => {
-  const {
-    activeCycle,
-    createNewCycle,
-    interruptCycle
-  } = useCycleContext()
+  const { activeCycle, createNewCycle, interruptCycle } = useCycleContext()
 
   const newCycleForm = useForm<NewCycleFormData>({
     resolver: zodResolver(newCycleSchema),

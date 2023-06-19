@@ -1,4 +1,19 @@
-import { createContext, useContext, useReducer, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useReducer,
+  useState,
+  ReactNode,
+  useEffect,
+} from 'react'
+import { cycleReducer } from '../reducers/cycles/reducer'
+import {
+  ActionTypes,
+  addNewCycleAction,
+  finishCycleAction,
+  interruptCycleAction,
+} from '../reducers/cycles/actions'
+import { differenceInSeconds } from 'date-fns'
 
 interface CreateNewCycleProps {
   task: string
@@ -14,8 +29,8 @@ export interface CycleProps {
   finishedAt?: Date
 }
 
-interface CycleContextProvider {
-  children: React.ReactNode
+interface CycleContextProviderProps {
+  children: ReactNode
 }
 
 interface CycleContextData {
@@ -27,79 +42,43 @@ interface CycleContextData {
   handleAmountSecondPassed: (amountSecondPassed: number) => void
   createNewCycle: (data: CreateNewCycleProps) => void
   interruptCycle: () => void
-}'  '
-
-interface CycleState {
-  cycles: CycleProps[]
-  activeCycleId: string | null
 }
 
 export const CycleContext = createContext({} as CycleContextData)
 
-export const CycleContextProvider = ({ children }: CycleContextProvider) => {
-  // const [cycles, setCycles] = useState<CycleProps[]>([])
-  const [amountSecondPassed, setAmountSecondPassed] = useState(0)
-  const [cycleState, dispatch] = useReducer((state: CycleState, action: any) => {
-    if (action.type === 'ADD_CYCLE') {
-      return {
-        ...state,
-        cycles: [...state.cycles, action.payload.newCycle],
-        activeCycleId: action.payload.newCycle.id
+export const CycleContextProvider = ({
+  children,
+}: CycleContextProviderProps) => {
+  const [cycleState, dispatch] = useReducer(
+    cycleReducer,
+    {
+      cycles: [],
+      activeCycleId: null,
+    },
+    (initialState) => {
+      const stateJSON = localStorage.getItem('@pomodoro:cycles-state-1.0.0')
+
+      if (stateJSON) {
+        return JSON.parse(stateJSON)
       }
-    }
 
-    if (action.type === 'FINISH_CYCLE') {
-      return {
-        ...state,
-        cycles: state.cycles.map((cycle) => {
-          if (cycle.id === action.payload.activeCycleId) {
-            return {
-              ...cycle,
-              finishedAt: new Date(),
-            }
-          }
-
-          return cycle
-        }),
-        activeCycleId: null
-      }
-    }
-
-    if (action.type === 'INTERRUPT_CYCLE') {
-      return {
-        ...state,
-        cycles: state.cycles.map((cycle) => {
-          if (cycle.id === action.payload.activeCycleId) {
-            return {
-              ...cycle,
-              interruptedAt: new Date(),
-            }
-          }
-
-          return cycle
-        }),
-        activeCycleId: null
-      }
-    }
-
-    return state
-  }, {
-    cycles: [],
-    activeCycleId: null
-  })
+      return initialState
+    },
+  )
 
   const { activeCycleId, cycles } = cycleState
-
-
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
 
+  const [amountSecondPassed, setAmountSecondPassed] = useState(() => {
+    if (activeCycle) {
+      return differenceInSeconds(new Date(), new Date(activeCycle.createdAt))
+    }
+
+    return 0
+  })
+
   function markCurrentCycleAsFinished() {
-    dispatch({
-      type: 'FINISH_CYCLE',
-      payload: {
-        activeCycleId
-      }
-    })
+    dispatch(finishCycleAction())
   }
 
   function handleAmountSecondPassed(amountSecondPassed: number) {
@@ -114,39 +93,33 @@ export const CycleContextProvider = ({ children }: CycleContextProvider) => {
       createdAt: new Date(),
     }
 
-    dispatch({
-      type: 'ADD_CYCLE',
-      payload: {
-        newCycle
-      }
-    })
-
+    dispatch(addNewCycleAction(newCycle))
     setAmountSecondPassed(0)
   }
 
   function interruptCycle() {
-
-    dispatch({
-      type: 'INTERRUPT_CYCLE',
-      payload: {
-        activeCycleId
-      }
-    })
-
+    dispatch(interruptCycleAction())
     setAmountSecondPassed(0)
   }
 
+  useEffect(() => {
+    const stateJSON = JSON.stringify(cycleState)
+    localStorage.setItem('@pomodoro:cycles-state-1.0.0', stateJSON)
+  }, [cycleState])
+
   return (
-    <CycleContext.Provider value={{
-      cycles,
-      activeCycle,
-      activeCycleId,
-      amountSecondPassed,
-      markCurrentCycleAsFinished,
-      handleAmountSecondPassed,
-      createNewCycle,
-      interruptCycle
-    }}>
+    <CycleContext.Provider
+      value={{
+        cycles,
+        activeCycle,
+        activeCycleId,
+        amountSecondPassed,
+        markCurrentCycleAsFinished,
+        handleAmountSecondPassed,
+        createNewCycle,
+        interruptCycle,
+      }}
+    >
       {children}
     </CycleContext.Provider>
   )
